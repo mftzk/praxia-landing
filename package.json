@@ -1,0 +1,9 @@
+{
+  "name": "praxia-landing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Praxia — AI implementation & process intelligence landing page",
+  "scripts": {
+    "build": "rm -rf dist && mkdir -p dist && cp index.html dist/index.html"
+  }
+}
