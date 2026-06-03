@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Praxia — AI Implementation & Process Intelligence</title>
+<meta name="description" content="Praxia is an AI consultancy turning operational friction into measurable advantage. We implement AI where it actually changes the unit economics of your business." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400&family=Archivo:wght@400;500;600;700&family=Archivo+Expanded:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0a0b0a;
+    --ink-2: #111312;
+    --paper: #f4f1e9;
+    --paper-dim: #b8b6ac;
+    --muted: #6c6e68;
+    --line: rgba(244, 241, 233, 0.12);
+    --lime: #c8f135;
+    --lime-deep: #9bbf1f;
+    --amber: #ff7a3d;
+    --maxw: 1240px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Archivo', sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ---------- atmosphere ---------- */
+  .mesh {
+    position: fixed;
+    inset: -20% -10% auto -10%;
+    height: 120vh;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(40% 50% at 18% 18%, rgba(200, 241, 53, 0.16), transparent 70%),
+      radial-gradient(38% 44% at 82% 12%, rgba(255, 122, 61, 0.12), transparent 70%),
+      radial-gradient(50% 55% at 60% 80%, rgba(120, 160, 30, 0.10), transparent 72%);
+    filter: blur(20px);
+    animation: drift 22s ease-in-out infinite alternate;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(0,0,0) scale(1); }
+    100% { transform: translate3d(-4%, 3%, 0) scale(1.12); }
+  }
+
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  .wrap { position: relative; z-index: 2; }
+  .container { width: 92%; max-width: var(--maxw); margin: 0 auto; }
+
+  /* ---------- type ---------- */
+  .serif { font-family: 'Fraunces', serif; font-weight: 400; }
+  h1, h2, h3 { font-family: 'Fraunces', serif; font-weight: 500; line-height: 1.04; letter-spacing: -0.02em; }
+  .eyebrow {
+    font-family: 'Archivo', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--lime);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 28px; height: 1px;
+    background: var(--lime);
+    display: inline-block;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- nav ---------- */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 0;
+    transition: background .4s ease, padding .4s ease, border-color .4s ease;
+    border-bottom: 1px solid transparent;
+  }
+  nav.scrolled {
+    background: rgba(10, 11, 10, 0.72);
+    backdrop-filter: blur(14px);
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  nav .container { display: flex; align-items: center; justify-content: space-between; width: 92%; }
+  .brand { display: flex; align-items: center; gap: 11px; font-family: 'Archivo Expanded', sans-serif; font-weight: 800; letter-spacing: -0.01em; font-size: 19px; }
+  .mark {
+    width: 30px; height: 30px; flex: none;
+    border-radius: 8px;
+    background: var(--lime);
+    color: var(--ink);
+    display: grid; place-items: center;
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 19px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 8px 24px rgba(200,241,53,.22);
+  }
+  .nav-links { display: flex; align-items: center; gap: 34px; }
+  .nav-links a { font-size: 14.5px; color: var(--paper-dim); transition: color .25s; }
+  .nav-links a:hover { color: var(--paper); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 14.5px;
+    padding: 12px 20px; border-radius: 999px;
+    background: var(--lime); color: var(--ink);
+    border: 1px solid var(--lime);
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s, background .25s;
+    cursor: pointer;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(200,241,53,.28); }
+  .btn-ghost { background: transparent; color: var(--paper); border: 1px solid var(--line); }
+  .btn-ghost:hover { background: rgba(244,241,233,.06); border-color: var(--paper-dim); box-shadow: none; }
+  .nav-toggle { display: none; }
+
+  /* ---------- hero ---------- */
+  header { padding: 190px 0 90px; position: relative; }
+  .hero-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 60px; align-items: end; }
+  h1.hero-title {
+    font-size: clamp(46px, 7vw, 104px);
+    margin: 26px 0 0;
+  }
+  h1.hero-title em { font-style: italic; color: var(--lime); }
+  h1.hero-title .out { color: transparent; -webkit-text-stroke: 1.2px var(--paper-dim); }
+  .hero-sub { color: var(--paper-dim); font-size: 19px; max-width: 480px; margin-top: 28px; }
+  .hero-cta { display: flex; gap: 14px; margin-top: 36px; flex-wrap: wrap; }
+  .hero-side { padding-bottom: 8px; }
+  .stat-card {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 22px 24px;
+    background: linear-gradient(180deg, rgba(244,241,233,.04), rgba(244,241,233,.01));
+    backdrop-filter: blur(6px);
+  }
+  .stat-row { display: flex; justify-content: space-between; align-items: baseline; padding: 16px 0; border-bottom: 1px dashed var(--line); }
+  .stat-row:last-child { border-bottom: 0; padding-bottom: 0; }
+  .stat-row:first-child { padding-top: 0; }
+  .stat-num { font-family: 'Fraunces', serif; font-size: 40px; font-weight: 500; line-height: 1; }
+  .stat-num span { color: var(--lime); }
+  .stat-label { color: var(--muted); font-size: 13.5px; max-width: 150px; text-align: right; }
+
+  .marquee {
+    margin-top: 92px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 20px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .marquee-track { display: inline-flex; gap: 56px; animation: scroll 28s linear infinite; }
+  .marquee-track span { color: var(--paper-dim); font-family: 'Archivo Expanded', sans-serif; font-weight: 600; font-size: 17px; letter-spacing: .02em; display: inline-flex; align-items: center; gap: 56px; }
+  .marquee-track span::after { content: "✦"; color: var(--lime); }
+  @keyframes scroll { to { transform: translateX(-50%); } }
+
+  /* ---------- section scaffolding ---------- */
+  section { padding: 110px 0; position: relative; }
+  .sec-head { max-width: 720px; margin-bottom: 64px; }
+  .sec-head h2 { font-size: clamp(34px, 4.6vw, 60px); margin-top: 20px; }
+  .sec-head p { color: var(--paper-dim); margin-top: 22px; font-size: 18.5px; }
+
+  /* ---------- services ---------- */
+  .services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
+  .svc { background: var(--ink); padding: 40px 34px 44px; position: relative; transition: background .4s; }
+  .svc:hover { background: var(--ink-2); }
+  .svc-no { font-family: 'Fraunces', serif; font-size: 15px; color: var(--lime); letter-spacing: .04em; }
+  .svc h3 { font-size: 25px; margin: 22px 0 14px; }
+  .svc p { color: var(--paper-dim); font-size: 15.5px; }
+  .svc-tags { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { font-size: 12px; color: var(--muted); border: 1px solid var(--line); padding: 5px 11px; border-radius: 999px; letter-spacing: .02em; }
+  .svc-glyph { position: absolute; top: 34px; right: 30px; font-family: 'Fraunces', serif; font-size: 30px; color: var(--line); transition: color .4s, transform .4s; }
+  .svc:hover .svc-glyph { color: var(--lime); transform: rotate(8deg); }
+
+  /* ---------- process ---------- */
+  .process { background: var(--ink-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; counter-reset: step; }
+  .step { position: relative; padding-top: 30px; border-top: 2px solid var(--line); transition: border-color .4s; }
+  .step:hover { border-color: var(--lime); }
+  .step .num { font-family: 'Archivo Expanded', sans-serif; font-weight: 800; font-size: 13px; letter-spacing: .2em; color: var(--lime); }
+  .step h3 { font-size: 21px; margin: 16px 0 12px; }
+  .step p { color: var(--paper-dim); font-size: 14.5px; }
+
+  /* ---------- impact / case ---------- */
+  .impact-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center; }
+  .quote { font-family: 'Fraunces', serif; font-size: clamp(28px, 3.4vw, 44px); line-height: 1.22; font-weight: 400; letter-spacing: -0.015em; }
+  .quote em { font-style: italic; color: var(--lime); }
+  .quote-by { margin-top: 30px; color: var(--paper-dim); font-size: 15px; display: flex; align-items: center; gap: 14px; }
+  .quote-by .dot { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--lime), var(--amber)); flex: none; }
+  .bars { display: grid; gap: 26px; }
+  .bar-item .bar-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .bar-item .bar-num { font-family: 'Fraunces', serif; font-size: 32px; }
+  .bar-item .bar-num span { color: var(--lime); }
+  .bar-item .bar-cap { color: var(--muted); font-size: 14px; }
+  .track { height: 8px; border-radius: 99px; background: rgba(244,241,233,.08); overflow: hidden; }
+  .fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--lime-deep), var(--lime)); width: 0; transition: width 1.4s cubic-bezier(.2,.8,.2,1); }
+
+  /* ---------- cta ---------- */
+  .cta-band { text-align: center; }
+  .cta-band h2 { font-size: clamp(38px, 6vw, 84px); }
+  .cta-band h2 em { font-style: italic; color: var(--lime); }
+  .cta-band p { color: var(--paper-dim); max-width: 520px; margin: 26px auto 38px; font-size: 18px; }
+
+  /* ---------- footer ---------- */
+  footer { border-top: 1px solid var(--line); padding: 60px 0 50px; }
+  .foot-grid { display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; flex-wrap: wrap; }
+  .foot-brand p { color: var(--muted); max-width: 280px; margin-top: 16px; font-size: 14.5px; }
+  .foot-cols { display: flex; gap: 80px; flex-wrap: wrap; }
+  .foot-col h4 { font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .foot-col a { display: block; color: var(--paper-dim); font-size: 14.5px; padding: 5px 0; transition: color .25s; }
+  .foot-col a:hover { color: var(--lime); }
+  .foot-bottom { margin-top: 50px; padding-top: 26px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 13px; }
+
+  /* ---------- reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .9s cubic-bezier(.2,.8,.2,1), transform .9s cubic-bezier(.2,.8,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .d1 { transition-delay: .08s; } .d2 { transition-delay: .16s; } .d3 { transition-delay: .24s; } .d4 { transition-delay: .32s; }
+
+  /* load-in */
+  .load { opacity: 0; transform: translateY(20px); animation: rise .95s cubic-bezier(.2,.8,.2,1) forwards; }
+  .l1 { animation-delay: .05s; } .l2 { animation-delay: .18s; } .l3 { animation-delay: .31s; } .l4 { animation-delay: .44s; } .l5 { animation-delay: .57s; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+    .services { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr 1fr; gap: 36px; }
+    .impact-grid { grid-template-columns: 1fr; gap: 44px; }
+    .nav-links { display: none; }
+    .nav-links.open { display: flex; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 4px; background: rgba(10,11,10,.97); padding: 18px 22px 26px; border-bottom: 1px solid var(--line); }
+    .nav-links.open a { padding: 10px 0; font-size: 16px; }
+    .nav-toggle { display: inline-grid; place-items: center; width: 44px; height: 40px; border: 1px solid var(--line); border-radius: 10px; background: transparent; cursor: pointer; gap: 5px; }
+    .nav-toggle span { width: 18px; height: 2px; background: var(--paper); display: block; }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 16px; }
+    header { padding: 150px 0 60px; }
+    .steps { grid-template-columns: 1fr; }
+    .nav .container .btn { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="mesh"></div>
+  <div class="grain"></div>
+
+  <div class="wrap">
+    <nav id="nav">
+      <div class="container">
+        <a class="brand" href="#top"><span class="mark">P</span> Praxia</a>
+        <div class="nav-links" id="navLinks">
+          <a href="#services">Services</a>
+          <a href="#process">Method</a>
+          <a href="#impact">Impact</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <a class="btn" href="#contact">Book a diagnostic <span aria-hidden="true">→</span></a>
+        <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </nav>
+
+    <header id="top">
+      <div class="container">
+        <div class="hero-grid">
+          <div>
+            <span class="eyebrow load l1">AI Implementation · Process Intelligence</span>
+            <h1 class="hero-title">
+              <span class="load l2">We put AI</span><br />
+              <span class="load l3"><em>where the work</em></span><br />
+              <span class="load l4 out">actually breaks.</span>
+            </h1>
+            <p class="hero-sub load l5">Praxia is an implementation consultancy for teams done with AI theatre. We map the real bottlenecks in your operations, then ship intelligent systems that move the numbers that matter.</p>
+            <div class="hero-cta load l5">
+              <a class="btn" href="#contact">Start a 2-week diagnostic <span aria-hidden="true">→</span></a>
+              <a class="btn btn-ghost" href="#process">See how we work</a>
+            </div>
+          </div>
+          <div class="hero-side load l4">
+            <div class="stat-card">
+              <div class="stat-row">
+                <div class="stat-num"><span>4.2×</span></div>
+                <div class="stat-label">avg. return on AI workflows we ship in year one</div>
+              </div>
+              <div class="stat-row">
+                <div class="stat-num">38<span>%</span></div>
+                <div class="stat-label">operating hours reclaimed from manual process</div>
+              </div>
+              <div class="stat-row">
+                <div class="stat-num">14<span>d</span></div>
+                <div class="stat-label">from kickoff to a working proof in production</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="marquee load l5">
+          <div class="marquee-track">
+            <span>Process Mining</span><span>LLM Workflows</span><span>Document Intelligence</span><span>Forecasting</span><span>RPA &amp; Orchestration</span><span>Decision Support</span>
+            <span>Process Mining</span><span>LLM Workflows</span><span>Document Intelligence</span><span>Forecasting</span><span>RPA &amp; Orchestration</span><span>Decision Support</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="services">
+      <div class="container">
+        <div class="sec-head reveal">
+          <span class="eyebrow">What we do</span>
+          <h2>Three ways we turn friction into leverage.</h2>
+          <p>No moonshots, no slideware. Each engagement targets a process you can name today and a metric you can defend to your CFO.</p>
+        </div>
+        <div class="services">
+          <div class="svc reveal d1">
+            <span class="svc-glyph">◆</span>
+            <div class="svc-no">01 — Diagnose</div>
+            <h3>Process &amp; Data Diagnostics</h3>
+            <p>We instrument how work really flows — not the org chart, the actual paths — and surface where time, money, and accuracy leak.</p>
+            <div class="svc-tags"><span class="tag">Process mining</span><span class="tag">Data readiness</span><span class="tag">ROI modelling</span></div>
+          </div>
+          <div class="svc reveal d2">
+            <span class="svc-glyph">▲</span>
+            <div class="svc-no">02 — Build</div>
+            <h3>AI Implementation</h3>
+            <p>From LLM copilots to document pipelines and forecasting models — engineered into your stack, governed, observable, and owned by your team.</p>
+            <div class="svc-tags"><span class="tag">LLM &amp; RAG</span><span class="tag">Automation</span><span class="tag">MLOps</span></div>
+          </div>
+          <div class="svc reveal d3">
+            <span class="svc-glyph">●</span>
+            <div class="svc-no">03 — Embed</div>
+            <h3>Process Improvement</h3>
+            <p>We redesign the workflow around the AI, train the people who run it, and leave behind playbooks so the gains compound after we go.</p>
+            <div class="svc-tags"><span class="tag">Change mgmt</span><span class="tag">Enablement</span><span class="tag">Governance</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="process" class="process">
+      <div class="container">
+        <div class="sec-head reveal">
+          <span class="eyebrow">The method</span>
+          <h2>A diagnostic-first path to production.</h2>
+          <p>Most AI projects die in the gap between demo and deployment. Ours are built backwards from that gap.</p>
+        </div>
+        <div class="steps">
+          <div class="step reveal d1"><div class="num">PHASE 01</div><h3>Map</h3><p>Two weeks shadowing the work. We quantify the bottleneck and pick the one process with the steepest payoff.</p></div>
+          <div class="step reveal d2"><div class="num">PHASE 02</div><h3>Prove</h3><p>A working proof against your real data — in front of real users — so the business case is evidence, not optimism.</p></div>
+          <div class="step reveal d3"><div class="num">PHASE 03</div><h3>Ship</h3><p>We harden it into production: monitoring, guardrails, fallbacks, and a cost model that holds at scale.</p></div>
+          <div class="step reveal d4"><div class="num">PHASE 04</div><h3>Hand off</h3><p>Your team owns it. Documentation, training, and a 90-day improvement loop baked in before we step back.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="impact">
+      <div class="container">
+        <div class="sec-head reveal">
+          <span class="eyebrow">Proof</span>
+          <h2>Outcomes we can put a number on.</h2>
+        </div>
+        <div class="impact-grid">
+          <div class="reveal d1">
+            <p class="quote">"Praxia didn't sell us a model. They <em>rebuilt how our claims desk runs</em> — and the AI just happens to be the engine underneath."</p>
+            <div class="quote-by"><span class="dot"></span> Head of Operations · Regional insurer, 1,800 staff</div>
+          </div>
+          <div class="bars reveal d2">
+            <div class="bar-item">
+              <div class="bar-top"><div class="bar-num">72<span>%</span></div><div class="bar-cap">faster claims triage</div></div>
+              <div class="track"><div class="fill" data-fill="88%"></div></div>
+            </div>
+            <div class="bar-item">
+              <div class="bar-top"><div class="bar-num">−<span>41%</span></div><div class="bar-cap">manual document handling</div></div>
+              <div class="track"><div class="fill" data-fill="74%"></div></div>
+            </div>
+            <div class="bar-item">
+              <div class="bar-top"><div class="bar-num">$2.4<span>M</span></div><div class="bar-cap">annualised operating savings</div></div>
+              <div class="track"><div class="fill" data-fill="92%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="process">
+      <div class="container cta-band">
+        <div class="reveal">
+          <span class="eyebrow" style="justify-content:center">Let's talk</span>
+          <h2>Find your <em>highest-leverage</em><br />process. In two weeks.</h2>
+          <p>Book a no-obligation diagnostic. We'll point at the one workflow where AI changes your unit economics — and tell you honestly if it doesn't.</p>
+          <div class="hero-cta" style="justify-content:center">
+            <a class="btn" href="mailto:hello@praxia.ai">hello@praxia.ai <span aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost" href="#top">Back to top</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <div class="foot-grid">
+          <div class="foot-brand">
+            <a class="brand" href="#top"><span class="mark">P</span> Praxia</a>
+            <p>AI implementation &amp; process intelligence for teams that measure what they ship.</p>
+          </div>
+          <div class="foot-cols">
+            <div class="foot-col">
+              <h4>Company</h4>
+              <a href="#services">Services</a>
+              <a href="#process">Method</a>
+              <a href="#impact">Impact</a>
+            </div>
+            <div class="foot-col">
+              <h4>Connect</h4>
+              <a href="mailto:hello@praxia.ai">Email</a>
+              <a href="#contact">Book a diagnostic</a>
+              <a href="#top">LinkedIn</a>
+            </div>
+          </div>
+        </div>
+        <div class="foot-bottom">
+          <span>© 2026 Praxia Consulting. All rights reserved.</span>
+          <span>Designed &amp; deployed on Nrapken Quick.</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+<script>
+  // nav state
+  const nav = document.getElementById('nav');
+  addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 24), { passive: true });
+
+  // mobile menu
+  const toggle = document.getElementById('navToggle');
+  const links = document.getElementById('navLinks');
+  toggle.addEventListener('click', () => links.classList.toggle('open'));
+  links.addEventListener('click', e => { if (e.target.tagName === 'A') links.classList.remove('open'); });
+
+  // scroll reveal + bar fills
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      en.target.classList.add('in');
+      en.target.querySelectorAll && en.target.querySelectorAll('.fill').forEach(f => f.style.width = f.dataset.fill);
+      io.unobserve(en.target);
+    });
+  }, { threshold: 0.18 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
